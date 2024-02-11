@@ -40,7 +40,6 @@ void generate_values(float *temperature, float *humidity) {
     prev_humidity = *humidity;
 }
 
-
 void parse_date(const char *date_str, struct tm *tm_date) {
     sscanf(date_str, "%d/%d/%d %d:%d:%d",
            &tm_date->tm_year, &tm_date->tm_mon, &tm_date->tm_mday,
@@ -71,12 +70,16 @@ int main() {
     parse_date(date1, &tm_date1);
     parse_date(date2, &tm_date2);
 
-    
     // Convert step to seconds
     int step_sec = step_min * 60;
 
+    // Round the initial time to the next closest clean interval
+    time_t initial_time = mktime(&tm_date1);
+    int remainder = initial_time % step_sec;
+    initial_time += (step_sec - remainder) % step_sec;
+
     // Iterate through dates and write to file
-    time_t current_time = mktime(&tm_date1);
+    time_t current_time = initial_time;
     time_t end_time = mktime(&tm_date2);
     while (current_time <= end_time) {
         // Get current date and time
